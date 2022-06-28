@@ -1,0 +1,2 @@
+#define web_server_VERSION_MAJOR @web_server_VERSION_MAJOR@
+#define web_server_VERSION_MINOR @web_server_VERSION_MINOR@
