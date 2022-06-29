@@ -43,17 +43,55 @@ Server::Server(short port)
 }
 Server::~Server()
 {
+    shutdown(data->server_fd, SHUT_RDWR);
+    close(data->server_fd);
     free(this->data);
 }
 
 bool Server::start_server()
 {
+    if (listen(data->server_fd, LSIZE) != 0) {
+        return false;
+    }
+    return true;
 }
 
-bool Server::accept()
+bool Server::server_accept()
 {
+    int client_fd = -1;
+    int s = sizeof(struct sockaddr_in);
+    struct sockaddr_in* addr = (struct sockaddr_in*) malloc(sizeof(struct sockaddr_in));
+    while((client_fd = accept(data->server_fd, (struct sockaddr*) addr, (socklen_t*) &s)) > 0) {
+        string buf = read_socket(client_fd);
+
+        cout << "Buffer: " << buf << endl;
+
+    }
+    return true;
+}
+
+string Server::read_socket(int sock) {
+    string buf;
+    char tbuf[DSIZE];
+    memset(tbuf, 0, DSIZE);
+    ssize_t read_size = 0;
+
+    while((read_size = read(sock, tbuf, DSIZE)) > 0) {
+        #if defined(DEBUG)
+            printf("[INFO] Received %ld bytes.\n", read_size);
+        #endif
+
+        printf("tbuf %ld: %s\n", read_size, tbuf);
+
+        buf += tbuf;
+    }
+    return buf;
 }
 
 bool Server::stop_server()
 {
+    shutdown(data->server_fd, SHUT_RDWR);
+    close(data->server_fd);
+    free(this->data);
+    exit(-189);
 }
